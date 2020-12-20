@@ -2,6 +2,7 @@ Welcome to My Twitter Stream Application
 Updates to come soon for this ReadMe
 
 For now, here is the spec:
+
 Twitter provides an API that streams a sampling of all the tweets being submitted to their platform: https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/introduction
 
 Your task is to create an application that consumes the sampled stream endpoint and keeps track of:
