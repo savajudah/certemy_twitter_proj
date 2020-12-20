@@ -1,4 +1,5 @@
 Welcome to My Twitter Stream Application
+
 Updates to come soon for this ReadMe
 
 For now, here is the spec:
