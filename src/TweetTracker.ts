@@ -1,3 +1,4 @@
+let AsyncLock = require('async-lock');
 
 // Define Interface Types
 export interface TweetTrackerInterface {
@@ -18,10 +19,17 @@ export interface Tweet {
 
 
 // Maintained Sorted List Implementation
-
-class TweetTrackerSortedList implements TweetTrackerInterface {
+export class TweetTrackerSortedList implements TweetTrackerInterface {
+  readonly mapLock = new AsyncLock();
+  readonly mapKey = "mapKey";
   private _map: Map<string, HashtagData>;
+
+  readonly countLock = new AsyncLock();
+  readonly countKey = "mapKey";
   private _tweetCount: number;
+
+  readonly topFiveLock = new AsyncLock();
+  readonly topFiveKey = "mapKey";
   private _topFive: HashtagData[];
   private readonly _nullHashtagData: HashtagData = 
     {
@@ -43,27 +51,33 @@ class TweetTrackerSortedList implements TweetTrackerInterface {
 
   addTweet(tweet: Tweet) : void
   {
+    this.countLock
     this._tweetCount++;
     for (let hashtag in tweet.hashtags)
     {
-      this.incrementHashtagCount(hashtag);
-      let i = this.findHashtagInTopFive(hashtag);
-      if (i >= 0)
-      {
-        this._topFive[i] = {
-          "hashtag" : hashtag,
-          "count" : this._topFive[i].count + 1
+      this.mapLock.acquire(this.mapKey, () => {
+        this.incrementHashtagCount(hashtag);
+      })
+
+      this.topFiveLock.acquire(this.topFiveKey, () => {
+        let i = this.findHashtagInTopFive(hashtag);
+        if (i >= 0)
+        {
+          this._topFive[i] = {
+            "hashtag" : hashtag,
+            "count" : this._topFive[i].count + 1
+          }
         }
-      }
-      else if (this._map.get(hashtag)?.count! >= this._topFive[-1].count)
-      {
-        this._topFive[-1] = this._map.get(hashtag)!;
-        this.bubbleUp();
-      }
+        else if (this._map.get(hashtag)?.count! >= this._topFive[-1].count)
+        {
+          this._topFive[-1] = this._map.get(hashtag)!;
+          this.bubbleUp();
+        }
+      });
     }
   }
 
-  bubbleUp() : void
+  private bubbleUp() : void
   {
     for (let i: number = this._topFive.length - 1; i > 0; i--)
     {
@@ -77,7 +91,7 @@ class TweetTrackerSortedList implements TweetTrackerInterface {
     }
   }
 
-  findHashtagInTopFive(hashtag: string) : number
+  private findHashtagInTopFive(hashtag: string) : number
   {
     for (let i: number = 0; i < this._topFive.length; i++)
     {
@@ -89,25 +103,29 @@ class TweetTrackerSortedList implements TweetTrackerInterface {
     return -1;
   }
 
-  incrementHashtagCount(hashtag: string) : void
+  private incrementHashtagCount(hashtag: string) : void
   {
     if (!this._map.has(hashtag))
     {
       this._map.set(hashtag, { "hashtag": hashtag, "count": 0 })
     }
-    let temp: (HashtagData | undefined) = this._map.get(hashtag);
-    temp!.count = temp!.count + 1;
-    this._map.set(hashtag, temp!);
+    this._map.get(hashtag)!.count++;
   }
 
   getTopFiveHashtags() : HashtagData[]
   {
-    return this._topFive;
+    let output: HashtagData[];
+    await this.topFiveLock.acquire(this.topFiveKey, () => {
+      this._topFive.forEach(val => output.push(Object.assign({}, val)));
+    });
+    return output;
   }
 
   getTotalTweetCount() : number
   {
-    return this._tweetCount;
+    this.countLock.acquire(this.countKey, () => {
+      return this._tweetCount;
+    });
   }
 }
 
