@@ -5,7 +5,7 @@ import needle from "needle";
 // export BEARER_TOKEN='YOUR-TOKEN' 
 const token: string = process.env.BEARER_TOKEN!;  
 
-const streamURL: string = 'https://api.twitter.com/2/tweets/sample/stream';
+const streamURL: string = 'https://api.twitter.com/2/tweets/sample/stream?tweet.fields=entities';
 
 function streamConnect(token: string, outputFn: (any: any) => void)
 {
@@ -17,8 +17,9 @@ function streamConnect(token: string, outputFn: (any: any) => void)
   const stream: NodeJS.ReadableStream = needle.get(streamURL, {
     headers: { 
       Authorization: `Bearer ${token}`
-    }
-  }, options);
+    },
+    timeout: 20000
+  });
 
   stream.on('data', data => {
     try {

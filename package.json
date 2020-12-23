@@ -3,8 +3,8 @@
     "@types/needle": "^2.5.1",
     "async-lock": "^1.2.6",
     "got": "^11.8.1",
+    "heap-js": "^2.1.4",
     "needle": "^2.5.2",
-    "oauth-1.0a": "^2.2.6",
-    "queue-typescript": "^1.0.1"
+    "oauth-1.0a": "^2.2.6"
   }
 }
