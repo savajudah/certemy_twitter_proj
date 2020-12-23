@@ -1,10 +1,18 @@
-Welcome to My Twitter Stream Application
+# Welcome to My Twitter Stream Application
 
-Setup:
+## Setup:
+```bash
+npm install
+tsc
+export BEARER_TOKEN='YOUR-TOKEN' 
+```
 
-Run:
+## Run:
+```bash
+node ./bin/main.js
+```
 
-Spec:
+## Spec:
 
 Twitter provides an API that streams a sampling of all the tweets being submitted to their platform: https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/introduction
 
