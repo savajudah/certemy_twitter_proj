@@ -1,8 +1,10 @@
 Welcome to My Twitter Stream Application
 
-Updates to come soon for this ReadMe
+Setup:
 
-For now, here is the spec:
+Run:
+
+Spec:
 
 Twitter provides an API that streams a sampling of all the tweets being submitted to their platform: https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/introduction
 
